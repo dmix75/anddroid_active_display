@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <string name="app_name">ActiveDisplay</string>
+    <string name="hello_world">Hello world!</string>
+	<string name="main_activity_text">Hello World!</string>
+	<string name="nlservice_btn_nt">Notification</string>
+	<string name="app_started">ActiveDisplay Service Started!</string>
+	
+	<!--  Active Display Preference Values -->
+	<string name="active_display_preference">Active Display</string>
+</resources>
