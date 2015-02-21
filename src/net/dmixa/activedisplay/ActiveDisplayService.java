@@ -32,12 +32,6 @@ SensorEventListener {
 	/** handle to sensor Manager */
 	private SensorManager mSensorManager;
 
-	/** Handle to wake Lock */
-	private WakeLock mWakeLock;
-
-	/** Handle to the power Manager */
-	private PowerManager mPM;
-
 	/** Handle to proximity sensor */
 	private Sensor mProximitySensor;
 
@@ -49,6 +43,9 @@ SensorEventListener {
 
 	/** enabled or disabled service */
 	private boolean mEnabled;
+	
+	/** Handle to manager to turn on and wake up device */
+	private ScreenManager mScreenManager;
 
 	/* (non-Javadoc)
 	 * @see android.app.Service#onCreate()
@@ -59,7 +56,7 @@ SensorEventListener {
 
 		mSensorManager = (SensorManager) getSystemService(SENSOR_SERVICE);
 
-		mPM = (PowerManager) getSystemService(Context.POWER_SERVICE);
+		mScreenManager = new ScreenManager(this);
 		mProximitySensor = mSensorManager.getDefaultSensor(Sensor.TYPE_PROXIMITY);
 		mProximityNear = false;
 
@@ -82,7 +79,7 @@ SensorEventListener {
 							if ( ! mEnabled ) {
 
 								unregisterListener();
-								unregisterWakeLock();
+								mScreenManager.unregisterWakeLock();
 
 							} else {
 
@@ -92,6 +89,41 @@ SensorEventListener {
 					}
 				}); 
 	}
+
+	
+	
+
+	/* (non-Javadoc)
+	 * @see android.app.Service#onDestroy()
+	 */
+	@Override
+	public void onDestroy() {
+		
+		super.onDestroy();
+		
+		if ( DEBUG ) Log.d(TAG, "Service has been destroyed");
+		unregisterListener();
+		mScreenManager.unregisterWakeLock();
+	}
+
+
+
+
+	/* (non-Javadoc)
+	 * @see android.content.ContextWrapper#stopService(android.content.Intent)
+	 */
+	@Override
+	public boolean stopService(Intent name) {
+
+		if ( DEBUG ) Log.d(TAG, "Service has been stopped");
+
+		unregisterListener();
+		mScreenManager.unregisterWakeLock();
+
+		return super.stopService(name);
+	}
+
+
 
 
 	/**
@@ -110,28 +142,6 @@ SensorEventListener {
 		mSensorManager.unregisterListener(this);
 	}
 
-	/**
-	 * Un-register the wake lock
-	 */
-	private void unregisterWakeLock() {
-		if ( null != mWakeLock ) {
-			mWakeLock.release();
-			mWakeLock = null;
-		}
-	}
-
-	/**
-	 * create and aquire the wakeLock
-	 */
-	private void registerWakeLock() {
-
-		if ( null == mWakeLock ) {
-			mWakeLock = mPM.newWakeLock(PowerManager.SCREEN_BRIGHT_WAKE_LOCK 
-					| PowerManager.ACQUIRE_CAUSES_WAKEUP, "tag");
-		}
-
-	}
-
 	/*
 	 * (non-Javadoc)
 	 * @see android.hardware.SensorEventListener#onAccuracyChanged(android.hardware.Sensor, int)
@@ -148,14 +158,14 @@ SensorEventListener {
 	@Override
 	public void onSensorChanged(SensorEvent event) {
 
-		if ( DEBUG ) Log.d(TAG, "onSensorChanged - screen on? " + mPM.isScreenOn());
+		if ( DEBUG ) Log.d(TAG, "onSensorChanged - screen on? " + mScreenManager.isScreenOn());
 		float value = event.values[0];
 		boolean isFar = value >= mProximitySensor.getMaximumRange();
 		Log.d(TAG, "ActiveDisplay ++++ proximity: " + isFar + "::" +
 				value + "::" + mProximitySensor.getMaximumRange() );
 
 		// -- get out if the screen is already turned on
-		if ( mPM.isScreenOn() ) return;
+		if ( mScreenManager.isScreenOn() ) return;
 
 		if ( ! isFar ) {
 
@@ -168,24 +178,9 @@ SensorEventListener {
 
 			// -- Check the previous sensor reading and make sure it was near
 			if ( mProximityNear ) {
-				turnScreenOn();
+				mScreenManager.turnScreenOn();
 				mProximityNear = false;
 			}
-		}
-	}
-
-	/** 
-	 * Turn on the screen
-	 */
-	private void turnScreenOn() {
-
-		registerWakeLock();
-		if ( null != mWakeLock ) {
-			if ( DEBUG ) Log.d(TAG,"Aquiring Wake Lock");
-			mWakeLock.acquire();
-			unregisterWakeLock();
-		} else {
-			if ( DEBUG ) Log.d(TAG,"Failed to register wakeLock");
 		}
 	}
 
@@ -195,7 +190,7 @@ SensorEventListener {
 	 */
 	@Override
 	public IBinder onBind(Intent intent) {
-		return null;
+		return onBind(intent);
 	}
 
 	/**
@@ -213,9 +208,11 @@ SensorEventListener {
 			if ( DEBUG ) Log.d(TAG, "onReceive("+intent+")");
 
 			if ( intent.getAction().equals(Intent.ACTION_SCREEN_ON) ) {
+
 				// -- turn off all the sensors
 				unregisterListener();
-				unregisterWakeLock();
+				mScreenManager.unregisterWakeLock();
+
 			} else if ( intent.getAction().equals(Intent.ACTION_SCREEN_OFF) ) {
 
 				if ( mEnabled ) {
@@ -226,7 +223,7 @@ SensorEventListener {
 								if ( DEBUG ) Log.d(TAG, "Runnable executing.");
 								unregisterListener();
 								registerListener();
-								unregisterWakeLock();
+								mScreenManager.unregisterWakeLock();
 							}
 						}
 					};
