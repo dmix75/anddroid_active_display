@@ -5,5 +5,10 @@
         android:defaultValue="true"
         android:key="pref_active_display"
         android:title="@string/active_display_preference" />
-
+    
+    <CheckBoxPreference
+        android:defaultValue="true"
+        android:key="pref_active_display"
+        android:title="@string/active_display_preference_notifications" />
+    
 </PreferenceScreen>

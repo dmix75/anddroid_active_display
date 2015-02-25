@@ -9,4 +9,5 @@
 	
 	<!--  Active Display Preference Values -->
 	<string name="active_display_preference">Active Display</string>
+	<string name="active_display_preference_notifications">Notifications</string>
 </resources>

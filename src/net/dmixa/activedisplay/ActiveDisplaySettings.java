@@ -3,9 +3,15 @@ package net.dmixa.activedisplay;
 import android.os.Bundle;
 import android.preference.PreferenceActivity;
 
+/**
+ * This class will display the ActiveDisplay Settings.
+ *
+ */
 public class ActiveDisplaySettings extends PreferenceActivity {
 
-	/* (non-Javadoc)
+	/*
+	 * (non-Javadoc)
+	 * 
 	 * @see android.preference.PreferenceActivity#onCreate(android.os.Bundle)
 	 */
 	@Override
@@ -14,6 +20,4 @@ public class ActiveDisplaySettings extends PreferenceActivity {
 		addPreferencesFromResource(R.xml.active_display_preferences);
 	}
 
-	
-	
 }

@@ -1111,7 +1111,7 @@ containing a value of this type.
         public static final int progress_circular=0x7f060018;
         public static final int progress_horizontal=0x7f060019;
         public static final int radio=0x7f06002f;
-        public static final int remote_content_view=0x7f06003e;
+        public static final int remote_content_view=0x7f06003c;
         public static final int search_badge=0x7f060032;
         public static final int search_bar=0x7f060031;
         public static final int search_button=0x7f060033;
@@ -1129,7 +1129,7 @@ containing a value of this type.
         public static final int split_action_bar=0x7f06001e;
         public static final int submit_area=0x7f060039;
         public static final int tabMode=0x7f060002;
-        public static final int textView1=0x7f06003c;
+        public static final int textView1=0x7f06003e;
         public static final int title=0x7f06002b;
         public static final int top_action_bar=0x7f060020;
         public static final int up=0x7f060021;
@@ -1234,6 +1234,7 @@ containing a value of this type.
         /**   Active Display Preference Values 
          */
         public static final int active_display_preference=0x7f0b0012;
+        public static final int active_display_preference_notifications=0x7f0b0013;
         public static final int app_name=0x7f0b000d;
         public static final int app_started=0x7f0b0011;
         public static final int hello_world=0x7f0b000e;
