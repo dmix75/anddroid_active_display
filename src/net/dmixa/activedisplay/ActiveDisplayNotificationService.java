@@ -15,21 +15,18 @@ import android.util.Log;
 public class ActiveDisplayNotificationService extends
         NotificationListenerService {
 
-    /** Turn on debugging. */
-    private static final boolean DEBUG = true;
-
     /** Notification preference. */
     private static final String PREF_NOTIFICATION_TAG = "pref_active_display_notifications";
 
-    /** tag when writing debug messages. */
+    /** tag when writing ActiveDisplayUtil.DEBUG messages. */
     private final String tag = this.getClass().getSimpleName();
 
     /** Binder given to clients. */
     private final IBinder mBinder = new LocalBinder();
 
     /** Custom Action for this binder. */
-    public static final String ACTION_CUSTOM = "net.dmixa.activedisplay." 
-                                + "ActiveDisplayNotificationService.ACTION_CUSTOM";
+    public static final String ACTION_CUSTOM = "net.dmixa.activedisplay."
+            + "ActiveDisplayNotificationService.ACTION_CUSTOM";
 
     /** Handle to screen Manager. */
     private ScreenManager mScreenManager;
@@ -63,43 +60,44 @@ public class ActiveDisplayNotificationService extends
      * {@inheritDoc}
      */
     @Override
-    public IBinder onBind(Intent intent) {
-        Log.d(tag, "bind");
-        if (intent.getAction().equals(ACTION_CUSTOM)) {
-            super.onBind(intent);
+    public IBinder onBind( Intent intent ) {
+        Log.d( tag, "bind" );
+        if ( intent.getAction().equals( ACTION_CUSTOM ) ) {
+            super.onBind( intent );
             return mBinder;
         } else {
-            return super.onBind(intent);
+            return super.onBind( intent );
         }
     }
 
     /*
      * (non-Javadoc)
+     * 
      * @see android.app.Service#onCreate()
      */
     @Override
     public void onCreate() {
 
         super.onCreate();
-        mScreenManager = new ScreenManager(this);
+        mScreenManager = new ScreenManager( this );
 
-        mPrefs = PreferenceManager.getDefaultSharedPreferences(this);
-        mEnabled = mPrefs.getBoolean(PREF_NOTIFICATION_TAG, true);
+        mPrefs = PreferenceManager.getDefaultSharedPreferences( this );
+        mEnabled = mPrefs.getBoolean( PREF_NOTIFICATION_TAG, true );
 
-        mPrefs.registerOnSharedPreferenceChangeListener(
+        mPrefs.registerOnSharedPreferenceChangeListener( 
                 new SharedPreferences.OnSharedPreferenceChangeListener() {
 
             @Override
             public void onSharedPreferenceChanged(
-                    SharedPreferences sharedPreferences, String key) {
-                if (PREF_NOTIFICATION_TAG.equals(key)) {
-                    if (DEBUG) {
-                        Log.d(tag, "Notification Preference changed");
+                    SharedPreferences sharedPreferences, String key ) {
+                if ( PREF_NOTIFICATION_TAG.equals( key ) ) {
+                    if ( ActiveDisplayUtil.DEBUG ) {
+                        Log.d( tag, "Notification Preference changed" );
                     }
-                    mEnabled = sharedPreferences.getBoolean(key, true);
+                    mEnabled = sharedPreferences.getBoolean( key, true );
                 }
             }
-        });
+        } );
     }
 
     /**
@@ -118,29 +116,29 @@ public class ActiveDisplayNotificationService extends
      * (android.service.notification.StatusBarNotification)
      */
     @Override
-    public void onNotificationPosted(StatusBarNotification sbn) {
+    public void onNotificationPosted( StatusBarNotification sbn ) {
 
         // -- not enabled get out
-        if (!mEnabled) {
+        if ( !mEnabled ) {
             return;
         }
 
-        if (DEBUG) {
-            Log.d(tag, "+++++ Notification Posted +++++");
+        if ( ActiveDisplayUtil.DEBUG ) {
+            Log.d( tag, "+++++ Notification Posted +++++" );
         }
 
         // -- Scrreen is not on so turn it on
-        if (!mScreenManager.isScreenOn()) {
+        if ( !mScreenManager.isScreenOn() ) {
             mScreenManager.turnScreenOn();
         }
 
         mCurrentNotification = sbn;
 
-        Intent intent = new Intent(this.getClass().getPackage().getName()
-                + ".NOTIFICATION_LISTENER");
-        intent.putExtra("notification_event", "posted");
+        Intent intent = new Intent( this.getClass().getPackage().getName()
+                + ".NOTIFICATION_LISTENER" );
+        intent.putExtra( "notification_event", "posted" );
 
-        sendBroadcast(intent);
+        sendBroadcast( intent );
 
     }
 
@@ -151,10 +149,10 @@ public class ActiveDisplayNotificationService extends
      * onNotificationRemoved(android.service.notification.StatusBarNotification)
      */
     @Override
-    public void onNotificationRemoved(StatusBarNotification sbn) {
-        if (DEBUG) {
-            Log.d(tag, "+++++ Notification Removed: "
-                    + sbn.getNotification().toString());
+    public void onNotificationRemoved( StatusBarNotification sbn ) {
+        if ( ActiveDisplayUtil.DEBUG ) {
+            Log.d( tag, "+++++ Notification Removed: "
+                    + sbn.getNotification().toString() );
         }
     }
 
